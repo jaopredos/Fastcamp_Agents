@@ -1,4 +1,5 @@
 .env
 venv
-aula\Agents-streamlit\trip_planner_agent\secrets.example
-aula\Agents-streamlit\fastapi-streamlit\requirements.txt
+secrets.toml
+__pycache__
+images
