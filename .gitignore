@@ -3,3 +3,5 @@ venv
 secrets.toml
 __pycache__
 images
+db
+ai.txt
