@@ -1,13 +1,11 @@
+#Importação das bibliotecas necessárias
 from crewai import Agent
 import re
 import streamlit as st
 from langchain_community.llms import OpenAI
 from crewai_tools import SerperDevTool
 
-# from tools.search_tools import search_tool
-# from tools.calculator_tools import calculator_tool
-# from tools.browser_tools import browser_tool
-
+#Mudança no código feita pelo desenvolvedor do projeto original
 ## My initial parsing code using callback handler to print to app
 # def streamlit_callback(step_output):
 #     # This function will be called after each step of the agent's execution
@@ -47,46 +45,75 @@ from crewai_tools import SerperDevTool
 #         else:
 #             st.markdown(step)
 
+#Mudança feita por mim para o código funcionar
+#Definição da ferramenta de busca
 search_tool = SerperDevTool()
 
 
+#Criação da classe TripAgents
+#Essa classe é responsável por criar os agentes que serão utilizados no projeto
 class TripAgents():
-
+    
+    #Método que cria o agente especialista em seleção de cidades
+    #Esse agente é responsável por selecionar a melhor cidade com base no clima, estação e preços
     def city_selection_agent(self):
         return Agent(
+            #Definição da função/papel do agente
             role='City Selection Expert',
+            #Definição do objetivo do agente
             goal='Select the best city based on weather, season, and prices',
+            #Definição da "identidade" do agente
             backstory='An expert in analyzing travel data to pick ideal destinations',
+            #Definição das ferramentas que o agente irá utilizar
             tools=[
                 search_tool,
             ],
+            #Parâmetro que define se as mensagens sobre as 
+            #ações realizadas pelos agentes serão exibidas
             verbose=True,
             # step_callback=streamlit_callback,
         )
 
+    #Método que cria o agente especialista local
+    #Esse agente é responsável por fornecer informações sobre a cidade selecionada
     def local_expert(self):
         return Agent(
+            #Definição da função/papel do agente
             role='Local Expert at this city',
+            #Definição do objetivo do agente
             goal='Provide the BEST insights about the selected city',
+            #Definição da "identidade" do agente
             backstory="""A knowledgeable local guide with extensive information
-        about the city, it's attractions and customs""",
+            about the city, it's attractions and customs""",
+            #Definição das ferramentas que o agente irá utilizar
             tools=[
                 search_tool
             ],
+            #Parâmetro que define se as mensagens sobre as 
+            #ações realizadas pelos agentes serão exibidas
             verbose=True,
             # step_callback=streamlit_callback,
         )
 
+    #Método que cria o agente especialista em planejamento de viagens
+    #Esse agente é responsável por criar itinerários de viagem com 
+    #sugestões de orçamento e embalagem para a cidade
     def travel_concierge(self):
         return Agent(
+            #Definição da função/papel do agente
             role='Amazing Travel Concierge',
+            #Definição do objetivo do agente
             goal="""Create the most amazing travel itineraries with budget and 
-        packing suggestions for the city""",
+            packing suggestions for the city""",
+            #Definição da "identidade" do agente
             backstory="""Specialist in travel planning and logistics with 
-        decades of experience""",
+            decades of experience""",
+            #Definição das ferramentas que o agente irá utilizar
             tools=[
                 search_tool
             ],
+            #Parâmetro que define se as mensagens sobre as 
+            #ações realizadas pelos agentes serão exibidas
             verbose=True,
             # step_callback=streamlit_callback,
         )
@@ -96,18 +123,25 @@ class TripAgents():
 # This portion of the code is adapted from @AbubakrChan; thank you!                       #
 # https://github.com/AbubakrChan/crewai-UI-business-product-launch/blob/main/main.py#L210 #
 ###########################################################################################
+#Definição da classe StreamToExpander
+#Essa classe é responsável por exibir as mensagens dos agentes no app
 class StreamToExpander:
+    #Definição do método construtor da classe
     def __init__(self, expander):
+        #Componente visual que irá exibir as mensagens
         self.expander = expander
+        #Lista que irá armazenar as mensagens
         self.buffer = []
-        self.colors = ['red', 'green', 'blue', 'orange']  # Define a list of colors
-        self.color_index = 0  # Initialize color index
+        #Lista de cores
+        self.colors = ['red', 'green', 'blue', 'orange']  
+        #Índice da cor
+        self.color_index = 0  
 
     def write(self, data):
-        # Filter out ANSI escape codes using a regular expression
+        #Retira os códigos ANSI para que eles não sejam exibidos no app
         cleaned_data = re.sub(r'\x1B\[[0-9;]*[mK]', '', data)
 
-        # Check if the data contains 'task' information
+        #Tenta extrair o valor da chave "task" do JSON
         task_match_object = re.search(r'\"task\"\s*:\s*\"(.*?)\"', cleaned_data, re.IGNORECASE)
         task_match_input = re.search(r'task\s*:\s*([^\n]*)', cleaned_data, re.IGNORECASE)
         task_value = None
@@ -116,18 +150,18 @@ class StreamToExpander:
         elif task_match_input:
             task_value = task_match_input.group(1).strip()
 
+        #Caso o valor da chave "task" exista, exibe uma mensagem no app
         if task_value:
             st.toast(":robot_face: " + task_value)
 
-        # Check if the text contains the specified phrase and apply color
+        #Verifica se a mensagem contém a string "Entering new CrewAgentExecutor chain"
+        #Caso contenha, aplica uma cor diferente e muda o índice da cor
         if "Entering new CrewAgentExecutor chain" in cleaned_data:
-            # Apply different color and switch color index
-            self.color_index = (self.color_index + 1) % len(self.colors)  # Increment color index and wrap around if necessary
-
+            self.color_index = (self.color_index + 1) % len(self.colors)  
             cleaned_data = cleaned_data.replace("Entering new CrewAgentExecutor chain", f":{self.colors[self.color_index]}[Entering new CrewAgentExecutor chain]")
 
         if "City Selection Expert" in cleaned_data:
-            # Apply different color 
+            #Aplica a cor ao texto
             cleaned_data = cleaned_data.replace("City Selection Expert", f":{self.colors[self.color_index]}[City Selection Expert]")
         if "Local Expert at this city" in cleaned_data:
             cleaned_data = cleaned_data.replace("Local Expert at this city", f":{self.colors[self.color_index]}[Local Expert at this city]")
@@ -136,11 +170,14 @@ class StreamToExpander:
         if "Finished chain." in cleaned_data:
             cleaned_data = cleaned_data.replace("Finished chain.", f":{self.colors[self.color_index]}[Finished chain.]")
 
+        #Adiciona a mensagem na lista de mensagens
         self.buffer.append(cleaned_data)
+        #Verifica se a mensagem contém a quebra de linha
         if "\n" in data:
+            #Exibe a mensagem no app
             self.expander.markdown(''.join(self.buffer), unsafe_allow_html=True)
             self.buffer = []
 
+    #Necessário para compatibilidade com sys.stdout
     def flush(self):
-        pass  # necessário para compatibilidade com sys.stdout
-
+        pass  

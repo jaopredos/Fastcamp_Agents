@@ -1,11 +1,16 @@
+#Importação das bibliotecas necessárias
 from crewai import Task
 from textwrap import dedent
 from datetime import date
 
-
+#Criação da classe TripTasks
 class TripTasks():
 
+    #Método que cria a tarefa de identificação da viagem,
+    #ou seja, a cidade de saída, as cidades de destino, os interesses
+    #e o intervalo de datas da viagem
     def identify_task(self, agent, origin, cities, interests, range):
+        #Retorna a criação da task com a descrição, a saída esperada e o agente
         return Task(description=dedent(f"""
             Analyze and select the best city for the trip based
             on specific criteria such as weather patterns, seasonal
@@ -28,7 +33,10 @@ class TripTasks():
             expected_output="A detailed report on the chosen city with flight costs, weather forecast, and attractions.",
             agent=agent)
 
+    #Método que cria a tarefa de coleta de informações,
+    #ou seja, um guia completo da cidade de destino com informações
     def gather_task(self, agent, origin, interests, range):
+        #Retorna a criação da task com a descrição, a saída esperada e o agente
         return Task(description=dedent(f"""
             As a local expert on this city you must compile an
             in-depth guide for someone traveling there and wanting
@@ -54,7 +62,10 @@ class TripTasks():
             expected_output="A comprehensive city guide with cultural insights and practical tips.",
             agent=agent)
 
+    #Método que cria a tarefa de planejamento da viagem,
+    #ou seja, um itinerário completo da viagem com informações detalhadas
     def plan_task(self, agent, origin, interests, range):
+        #Retorna a criação da task com a descrição, a saída esperada e o agente
         return Task(description=dedent(f"""
             Expand this guide into a full travel
             itinerary for this time {range} with detailed per-day plans, including
@@ -82,5 +93,6 @@ class TripTasks():
             expected_output="A complete 7-day travel plan, formatted as markdown, with a daily schedule and budget.",
             agent=agent)
 
+    #Método encapsulado que retorna uma mensagem de dica
     def __tip_section(self):
         return "If you do your BEST WORK, I'll tip you $100 and grant you any wish you want!"
