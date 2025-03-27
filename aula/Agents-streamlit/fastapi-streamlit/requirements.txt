@@ -1,0 +1,7 @@
+fastapi
+pydantic
+uvicorn
+crewai
+crewai[tools]
+fastapi[standard]
+sendmail
